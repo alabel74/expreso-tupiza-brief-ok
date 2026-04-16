@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico Estratégico — Expreso Tupiza</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f7f6f2;
+  --bg-tertiary: #f1efe8;
+  --text: #2c2c2a;
+  --text-secondary: #5f5e5a;
+  --text-tertiary: #888780;
+  --border: rgba(44,44,42,0.12);
+  --border-md: rgba(44,44,42,0.22);
+  --teal: #1D9E75;
+  --teal-light: #E1F5EE;
+  --teal-dark: #0F6E56;
+  --teal-mid: #5DCAA5;
+  --blue-light: #E6F1FB;
+  --blue: #185FA5;
+  --blue-text: #0C447C;
+  --purple-light: #EEEDFE;
+  --purple: #534AB7;
+  --purple-text: #3C3489;
+  --coral-light: #FAECE7;
+  --coral: #993C1D;
+  --amber-light: #FAEEDA;
+  --amber: #854F0B;
+  --amber-text: #633806;
+  --gray-light: #F1EFE8;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1c; --bg-secondary: #2a2a28; --bg-tertiary: #232321;
+    --text: #f1efe8; --text-secondary: #b4b2a9; --text-tertiary: #888780;
+    --border: rgba(241,239,232,0.1); --border-md: rgba(241,239,232,0.2);
+    --teal-light: #04342C; --blue-light: #042C53; --blue-text: #85B7EB;
+    --purple-light: #26215C; --purple-text: #AFA9EC;
+    --coral-light: #4A1B0C; --amber-light: #412402; --amber-text: #FAC775;
+    --gray-light: #2C2C2A;
+  }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-tertiary); color: var(--text); min-height: 100vh; padding: 0 0 5rem; }
+.wrapper { max-width: 720px; margin: 0 auto; padding: 0 1rem; }
+
+/* HERO */
+.hero { background: var(--teal-dark); padding: 2.5rem 1.5rem 2rem; margin-bottom: 0; }
+.hero-inner { max-width: 720px; margin: 0 auto; }
+.hero-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; color: var(--teal-mid); background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; letter-spacing: 0.05em; text-transform: uppercase; }
+.hero h1 { font-size: 26px; font-weight: 500; color: #ffffff; line-height: 1.3; margin-bottom: 8px; }
+.hero p { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.6; max-width: 520px; }
+.hero-meta { display: flex; gap: 16px; margin-top: 1.25rem; flex-wrap: wrap; }
+.hero-chip { font-size: 12px; color: rgba(255,255,255,0.55); display: flex; align-items: center; gap: 5px; }
+.hero-chip strong { color: rgba(255,255,255,0.9); font-weight: 500; }
+
+/* PROGRESS */
+.progress-sticky { position: sticky; top: 0; background: var(--bg); border-bottom: 0.5px solid var(--border); z-index: 100; padding: 10px 1rem; }
+.progress-inner { max-width: 720px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.progress-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
+.progress-fill { height: 100%; border-radius: 2px; background: var(--teal); transition: width 0.4s; width: 0%; }
+.progress-label { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; min-width: 70px; text-align: right; }
+
+/* NAV */
+.block-nav { display: flex; gap: 6px; padding: 1rem 0 0; flex-wrap: wrap; }
+.nav-btn { font-size: 11px; padding: 5px 11px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.nav-btn:hover { background: var(--bg-secondary); }
+.nav-btn.active { background: var(--teal); color: white; border-color: transparent; }
+.nav-btn.completed { background: var(--teal-light); color: var(--teal-dark); border-color: transparent; }
+
+/* BLOCKS */
+.block { display: none; padding-top: 1.5rem; }
+.block.active { display: block; }
+
+.block-header { margin-bottom: 1.5rem; }
+.block-eyebrow { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 6px; }
+.block-title { font-size: 20px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+.block-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+.block-why { font-size: 12px; color: var(--teal-dark); background: var(--teal-light); border-radius: var(--radius-md); padding: 8px 12px; margin-top: 10px; line-height: 1.5; }
+
+/* QUESTION CARDS */
+.question-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 12px; transition: border-color 0.25s, box-shadow 0.25s; }
+.question-card:focus-within { border-color: var(--teal-mid); }
+.question-card.answered { border-color: var(--teal-mid); }
+.q-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.q-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.q-tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; letter-spacing: 0.03em; }
+.tag-critica { background: var(--coral-light); color: var(--coral); }
+.tag-crecimiento { background: var(--purple-light); color: var(--purple-text); }
+.tag-ia { background: var(--blue-light); color: var(--blue-text); }
+.tag-proceso { background: var(--amber-light); color: var(--amber-text); }
+.tag-escala { background: var(--teal-light); color: var(--teal-dark); }
+.q-check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border-md); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.q-check.done { background: var(--teal); border-color: var(--teal); }
+.q-check.done::after { content: ''; width: 5px; height: 8px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); display: block; }
+.q-text { font-size: 14px; color: var(--text); line-height: 1.6; margin-bottom: 6px; font-weight: 500; }
+.q-context { font-size: 12px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 10px; }
+.q-input { width: 100%; font-size: 13px; padding: 10px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: var(--bg-secondary); color: var(--text); resize: vertical; min-height: 72px; font-family: inherit; line-height: 1.55; transition: border-color 0.2s; }
+.q-input:focus { outline: none; border-color: var(--teal); background: var(--bg); }
+.q-input::placeholder { color: var(--text-tertiary); }
+
+/* SCALE INPUTS */
+.scale-wrap { margin-bottom: 10px; }
+.scale-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+.scale-options { display: flex; gap: 6px; flex-wrap: wrap; }
+.scale-btn { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--border-md); background: transparent; color: var(--text-secondary); cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.scale-btn:hover { background: var(--bg-secondary); }
+.scale-btn.selected { background: var(--teal); color: white; border-color: transparent; }
+
+/* FOOTER NAV */
+.footer-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 0.5px solid var(--border); padding: 12px 1rem; z-index: 100; }
+.footer-inner { max-width: 720px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.btn-nav { font-size: 13px; padding: 9px 20px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: transparent; color: var(--text); cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.btn-nav:hover { background: var(--bg-secondary); }
+.btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-primary { background: var(--teal); color: white; border-color: transparent; font-weight: 500; }
+.btn-primary:hover { background: var(--teal-dark); }
+.nav-counter { font-size: 12px; color: var(--text-tertiary); }
+
+/* SUMMARY */
+.summary { display: none; padding-top: 1.5rem; }
+.summary.active { display: block; }
+.summary-hero { background: var(--teal-dark); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; }
+.summary-hero h2 { font-size: 18px; font-weight: 500; color: white; margin-bottom: 4px; }
+.summary-hero p { font-size: 13px; color: rgba(255,255,255,0.6); }
+.summary-stats { display: flex; gap: 8px; margin-top: 1rem; }
+.s-stat { background: rgba(255,255,255,0.1); border-radius: var(--radius-md); padding: 8px 14px; flex: 1; }
+.s-stat-val { font-size: 20px; font-weight: 500; color: white; }
+.s-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+.summary-block { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 12px; }
+.summary-block-title { font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.summary-item { padding: 9px 0; border-bottom: 0.5px solid var(--border); }
+.summary-item:last-child { border-bottom: none; padding-bottom: 0; }
+.summary-q { font-size: 12px; color: var(--text-secondary); margin-bottom: 3px; }
+.summary-a { font-size: 13px; color: var(--text); line-height: 1.5; }
+.empty-a { font-size: 13px; color: var(--text-tertiary); font-style: italic; }
+.export-btn { width: 100%; padding: 12px; background: var(--teal); color: white; border: none; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; margin-top: 1rem; transition: background 0.2s; }
+.export-btn:hover { background: var(--teal-dark); }
+.copy-btn { width: 100%; padding: 12px; background: transparent; color: var(--teal); border: 0.5px solid var(--teal-mid); border-radius: var(--radius-md); font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; margin-top: 8px; transition: all 0.2s; }
+.copy-btn:hover { background: var(--teal-light); }
+.toast { position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--teal-dark); color: white; font-size: 13px; padding: 10px 20px; border-radius: 20px; transition: transform 0.3s; z-index: 999; white-space: nowrap; opacity: 0; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+@media (max-width: 480px) {
+  .hero h1 { font-size: 20px; }
+  .hero { padding: 2rem 1rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Simple Marketing IA · Diagnóstico Estratégico</div>
+    <h1>Cuéntenos cómo crece Expreso Tupiza</h1>
+    <p>Este formulario nos permite diseñar una estrategia a medida — no genérica. Sus respuestas definen si trabajamos en marketing, automatización, crecimiento o los tres a la vez.</p>
+    <div class="hero-meta">
+      <div class="hero-chip"><strong>6 bloques</strong> temáticos</div>
+      <div class="hero-chip"><strong>~20 min</strong> para completar</div>
+      <div class="hero-chip">Para: <strong>Diego Tito Tejerina</strong></div>
+    </div>
+  </div>
+</div>
+
+<div class="progress-sticky">
+  <div class="progress-inner">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 de 28</div>
+  </div>
+</div>
+
+<div class="wrapper">
+  <div class="block-nav" id="blockNav"></div>
+  <div id="blocks"></div>
+
+  <div class="summary" id="summaryView">
+    <div class="summary-hero">
+      <h2>Diagnóstico completo</h2>
+      <p>Listo para generar la propuesta estratégica.</p>
+      <div class="summary-stats">
+        <div class="s-stat"><div class="s-stat-val" id="s-answered">0</div><div class="s-stat-lbl">Respondidas</div></div>
+        <div class="s-stat"><div class="s-stat-val" id="s-pct">0%</div><div class="s-stat-lbl">Completado</div></div>
+        <div class="s-stat"><div class="s-stat-val" id="s-blocks">0/6</div><div class="s-stat-lbl">Bloques</div></div>
+      </div>
+    </div>
+    <div id="summaryContent"></div>
+    <button class="export-btn" onclick="exportTxt()">Descargar diagnóstico en .txt</button>
+    <button class="copy-btn" onclick="copyAll()">Copiar al portapapeles</button>
+    <div style="height: 80px;"></div>
+  </div>
+</div>
+
+<div class="footer-nav">
+  <div class="footer-inner">
+    <button class="btn-nav" id="btnPrev" onclick="navigate(-1)" disabled>← Anterior</button>
+    <span class="nav-counter" id="navCounter"></span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn-nav" onclick="exportTxt()" title="Descargar respuestas" style="padding:9px 14px;font-size:13px;">⬇ Descargar</button>
+      <button class="btn-nav btn-primary" id="btnNext" onclick="navigate(1)">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">¡Copiado!</div>
+
+<script>
+const blocks = [
+  {
+    id: 'negocio',
+    title: 'El negocio real',
+    eyebrow: 'Bloque 1 — Estructura y operación',
+    desc: 'Antes de hablar de estrategia, necesitamos entender exactamente cómo opera Expreso Tupiza hoy.',
+    why: 'Por qué importa: el crecimiento sostenible solo es posible cuando la operación tiene bases sólidas. Necesitamos ver dónde están los cuellos de botella antes de acelerar.',
+    questions: [
+      {
+        id: 'q1', tag: 'proceso',
+        text: '¿Cuántos buses operan actualmente y cuántas salidas diarias tienen en total?',
+        context: 'Incluya las rutas principales (La Paz, Potosí, Villazón, Tarija) y si hay diferencia entre días de semana y fines de semana.',
+        placeholder: 'Ej: 12 buses, 3 salidas diarias por ruta principal...'
+      },
+      {
+        id: 'q2', tag: 'critica',
+        text: '¿Cuál es el porcentaje de ocupación promedio por salida? ¿Y en temporada baja?',
+        context: 'Si no tienen el dato exacto, una estimación es válida. Este número define el potencial de crecimiento real sin necesidad de más flota.',
+        placeholder: 'Ej: En temporada alta llenamos el 90%, en baja bajamos al 50%...'
+      },
+      {
+        id: 'q3', tag: 'critica',
+        text: '¿Cuál es el principal problema operativo que les impide crecer hoy — más allá del marketing?',
+        context: 'Puede ser coordinación interna, procesos manuales, falta de sistemas, gestión de choferes, etc. Sea directo.',
+        placeholder: 'El problema más grande que enfrentamos operativamente es...'
+      },
+      {
+        id: 'q4', tag: 'escala',
+        text: '¿Expreso Tupiza tiene planes de expansión en los próximos 2 años? Nuevas rutas, más flota, nuevas ciudades.',
+        context: 'Esto nos ayuda a diseñar una estrategia que no solo resuelva el hoy, sino que soporte el crecimiento futuro.',
+        placeholder: 'Nuestra visión de expansión es...'
+      },
+    ]
+  },
+  {
+    id: 'clientes',
+    title: 'Sus pasajeros y cómo los consiguen',
+    eyebrow: 'Bloque 2 — Adquisición y comportamiento de clientes',
+    desc: 'El crecimiento real empieza por entender quién viaja con ustedes, por qué los elige y cómo los encuentra.',
+    why: 'Por qué importa: sin entender al pasajero, cualquier campaña es un disparo al aire. Con ese entendimiento, cada sol invertido en marketing multiplica.',
+    questions: [
+      {
+        id: 'q5', tag: 'critica',
+        text: '¿Cómo llegan hoy sus nuevos pasajeros? ¿Cómo los encuentra la gente?',
+        context: 'Marque los canales más importantes: terminal física, recomendación boca a boca, redes sociales, Tickets Bolivia/Busbud, WhatsApp, Google.',
+        placeholder: 'La mayoría nos encuentra por...'
+      },
+      {
+        id: 'q6', tag: 'crecimiento',
+        text: '¿Quién es su pasajero más frecuente? Descríbalo: edad, motivo de viaje, ruta habitual.',
+        context: 'Por ejemplo: estudiantes universitarios que viajan Potosí-La Paz los fines de semana, o familias en feriados, o trabajadores que van a Villazón.',
+        placeholder: 'Nuestro pasajero típico es...'
+      },
+      {
+        id: 'q7', tag: 'escala',
+        text: '¿Tienen clientes corporativos o institucionales? Empresas mineras, universidades, instituciones del Estado que compren pasajes en volumen.',
+        context: 'Un solo contrato B2B puede equivaler a cientos de pasajes individuales. Si existe ese mercado, es una palanca enorme.',
+        placeholder: 'En cuanto a clientes corporativos...'
+      },
+      {
+        id: 'q8', tag: 'critica',
+        text: 'Con el alza del 40% en tarifas desde enero 2026, ¿cómo reaccionaron sus pasajeros? ¿Notaron caída en demanda o cambio de comportamiento?',
+        context: 'Esta respuesta es crítica: si hubo caída, el problema es posicionamiento de valor. Si no hubo caída, tienen margen de maniobra mayor.',
+        placeholder: 'Después del alza tarifaria notamos que...'
+      },
+    ]
+  },
+  {
+    id: 'digital',
+    title: 'Presencia digital y marketing actual',
+    eyebrow: 'Bloque 3 — Estado digital',
+    desc: 'Queremos entender qué tienen, qué funciona y dónde están perdiendo oportunidades concretas hoy.',
+    why: 'Por qué importa: Expreso Tupiza tiene TikTok con 12K likes y Facebook activo — hay una base. La pregunta es si ese activo está convirtiendo pasajeros o solo acumulando likes.',
+    questions: [
+      {
+        id: 'q9', tag: 'proceso',
+        text: '¿Quién maneja sus redes sociales hoy? ¿Cuánto tiempo le dedica esa persona por semana?',
+        context: 'No hay respuesta incorrecta. Necesitamos saber si hay intención estratégica detrás del contenido o si es reactivo.',
+        placeholder: 'Actualmente las redes las maneja...'
+      },
+      {
+        id: 'q10', tag: 'critica',
+        text: '¿Cuántos pasajes venden por canales digitales (WhatsApp, Tickets Bolivia, Busbud) vs en terminal física?',
+        context: 'Si no tienen el dato exacto, una estimación sirve. Este número define cuánto dinero están dejando sobre la mesa digitalmente.',
+        placeholder: 'Aproximadamente vendemos un X% por digital y un X% en terminal...'
+      },
+      {
+        id: 'q11', tag: 'crecimiento',
+        text: '¿Han hecho publicidad pagada alguna vez? Facebook Ads, Google Ads, promociones en Instagram.',
+        context: 'Si lo intentaron, ¿qué resultado tuvieron? Si no lo han hecho, ¿por qué no?',
+        placeholder: 'Respecto a publicidad pagada...'
+      },
+      {
+        id: 'q12', tag: 'crecimiento',
+        text: '¿Qué hace su competencia en digital que ustedes no están haciendo?',
+        context: 'Si no lo saben con certeza, descríban qué ven de Panamericana, Trans El Inca u otras líneas en redes o plataformas de venta.',
+        placeholder: 'Lo que vemos que hace la competencia es...'
+      },
+    ]
+  },
+  {
+    id: 'atencion',
+    title: 'Atención al cliente y comunicación',
+    eyebrow: 'Bloque 4 — Experiencia del pasajero',
+    desc: 'La experiencia antes y después del viaje es donde se gana o pierde la lealtad del pasajero. Y es donde la IA puede hacer más en menos tiempo.',
+    why: 'Por qué importa: el 70% de los pasajeros que no vuelven no lo hacen por precio — lo hacen por una mala experiencia de comunicación. Automatizar esto bien genera retención sin contratar más personal.',
+    questions: [
+      {
+        id: 'q13', tag: 'proceso',
+        text: '¿Por qué canales se comunican hoy con sus pasajeros antes del viaje? WhatsApp, llamadas, Facebook, correo.',
+        context: 'Incluya si tienen un número de WhatsApp oficial o si cada persona usa el suyo.',
+        placeholder: 'Nos comunicamos principalmente por...'
+      },
+      {
+        id: 'q14', tag: 'critica',
+        text: '¿Cuáles son las 3 consultas más repetidas que reciben por WhatsApp o llamada?',
+        context: 'Horarios, precios, disponibilidad, reclamos por retrasos, cambios de pasaje... Las más frecuentes. Estas son exactamente las que se pueden automatizar.',
+        placeholder: 'Las consultas más frecuentes que recibimos son: 1)... 2)... 3)...'
+      },
+      {
+        id: 'q15', tag: 'ia',
+        text: '¿Cuánto tiempo dedica su equipo diariamente a responder mensajes y consultas repetitivas?',
+        context: 'Una estimación es suficiente. Este dato nos permite calcular el ahorro real en tiempo y costo si se automatiza.',
+        placeholder: 'Aproximadamente dedicamos X horas al día a responder mensajes...',
+        scale: { label: 'O indique el rango aproximado de horas al día:', options: ['Menos de 1h', '1-2 horas', '2-4 horas', 'Más de 4 horas'] }
+      },
+      {
+        id: 'q16', tag: 'ia',
+        text: '¿Han tenido reclamos públicos en redes o Google? ¿Cómo los manejan actualmente?',
+        context: 'La gestión de reputación online es un diferenciador invisible pero poderoso en el sector transporte boliviano.',
+        placeholder: 'En cuanto a reclamos públicos...'
+      },
+    ]
+  },
+  {
+    id: 'automatizacion',
+    title: 'Procesos internos y automatización',
+    eyebrow: 'Bloque 5 — Operación y tecnología',
+    desc: 'Aquí identificamos dónde Expreso Tupiza pierde más tiempo, dinero y energía en procesos que la tecnología puede resolver.',
+    why: 'Por qué importa: automatizar un proceso que hoy toma 3 horas diarias libera tiempo para crecer, no para apagar incendios. Y en Bolivia, esta ventaja competitiva aún no la tiene nadie en el sector.',
+    questions: [
+      {
+        id: 'q17', tag: 'ia',
+        text: '¿Qué procesos administrativos hacen hoy de forma completamente manual que les quita más tiempo?',
+        context: 'Ejemplos: registro de reservas, coordinación de salidas, control de ocupación por bus, reportes de ventas, arqueo de caja, comunicación con choferes.',
+        placeholder: 'Los procesos que más tiempo nos consumen manualmente son...'
+      },
+      {
+        id: 'q18', tag: 'proceso',
+        text: '¿Qué software o herramientas digitales usan hoy para gestionar la operación?',
+        context: 'Excel, sistema de ticketing propio, WhatsApp, papel, algún ERP. Sin juicio — necesitamos saber el punto de partida real.',
+        placeholder: 'Actualmente usamos...'
+      },
+      {
+        id: 'q19', tag: 'ia',
+        text: '¿Tienen visibilidad en tiempo real de cuántos asientos están vendidos por salida y por bus?',
+        context: 'Esta capacidad (o su ausencia) define si pueden optimizar precios dinámicamente, hacer promociones inteligentes y anticipar temporadas bajas.',
+        placeholder: 'En cuanto al control de ocupación en tiempo real...',
+        scale: { label: 'Nivel de visibilidad actual:', options: ['Cero visibilidad', 'Visibilidad parcial', 'Casi completa', 'Completa en tiempo real'] }
+      },
+      {
+        id: 'q20', tag: 'escala',
+        text: 'Si pudieran automatizar una sola cosa en los próximos 90 días, ¿qué sería?',
+        context: 'Esta respuesta nos ayuda a priorizar. No hay respuesta incorrecta — queremos su perspectiva real.',
+        placeholder: 'Si pudiera automatizar solo una cosa, sería...'
+      },
+    ]
+  },
+  {
+    id: 'vision',
+    title: 'Visión, decisión e inversión',
+    eyebrow: 'Bloque 6 — Cierre estratégico',
+    desc: 'Estas preguntas definen si podemos construir una alianza de largo plazo o si estamos resolviendo un problema puntual.',
+    why: 'Por qué importa: una estrategia de growth real requiere 6-12 meses de trabajo consistente. Necesitamos saber si hay visión y voluntad de inversión para ese horizonte.',
+    questions: [
+      {
+        id: 'q21', tag: 'crecimiento',
+        text: '¿Cuál es la visión de Expreso Tupiza para los próximos 3 años? ¿Más rutas, más flota, modernización, o consolidar lo que tienen?',
+        context: 'Queremos entender si el objetivo es crecer agresivamente, defenderse de la competencia, o construir un sistema más eficiente.',
+        placeholder: 'En 3 años, queremos que Expreso Tupiza sea...'
+      },
+      {
+        id: 'q22', tag: 'critica',
+        text: '¿Qué resultado concreto, medible, haría que consideren exitosa la inversión en marketing y tecnología?',
+        context: 'Ejemplos: X% más de pasajes vendidos por digital, llenar el X% de los buses en temporada baja, reducir X horas de trabajo manual por semana.',
+        placeholder: 'Para nosotros el éxito sería ver...'
+      },
+      {
+        id: 'q23', tag: 'proceso',
+        text: '¿Han trabajado antes con una agencia, consultor externo o proveedor de tecnología? ¿Qué pasó?',
+        context: 'Si fue negativo, queremos saberlo. Esa experiencia nos ayuda a definir cómo trabajar diferente.',
+        placeholder: 'Nuestra experiencia previa con proveedores externos fue...'
+      },
+      {
+        id: 'q24', tag: 'critica',
+        text: '¿Tienen un presupuesto mensual estimado disponible para marketing, automatización o tecnología?',
+        context: 'No necesitamos un número exacto ahora — solo un rango que nos permita diseñar una propuesta realista y no aspiracional.',
+        placeholder: 'El rango de inversión mensual que consideraríamos es...',
+        scale: { label: 'Rango de inversión mensual disponible:', options: ['Hasta Bs. 1,500', 'Bs. 1,500 - 3,000', 'Bs. 3,000 - 5,000', 'Más de Bs. 5,000'] }
+      },
+      {
+        id: 'q25', tag: 'critica',
+        text: 'Una vez que revisemos la propuesta, ¿la decisión de avanzar la toma usted directamente o requiere aprobación del directorio sindical?',
+        context: 'Esto nos ayuda a preparar la presentación correcta para las personas correctas.',
+        placeholder: 'En cuanto a la toma de decisiones...'
+      },
+      {
+        id: 'q26', tag: 'escala',
+        text: '¿Hay algo que no le hayamos preguntado y que considere clave para entender a Expreso Tupiza?',
+        context: 'Espacio abierto. A veces lo más importante está donde nadie pregunta.',
+        placeholder: 'Algo importante que deben saber es...'
+      },
+    ]
+  }
+];
+
+const tagLabels = { critica:'Crítica', crecimiento:'Crecimiento', ia:'IA', proceso:'Proceso', escala:'Escala' };
+const answers = {};
+const scaleSelections = {};
+let currentBlock = 0;
+let showSummary = false;
+
+function getTotalQ() { return blocks.reduce((a,b)=>a+b.questions.length,0); }
+function getTotalAnswered() {
+  let count = 0;
+  blocks.forEach(b => b.questions.forEach(q => {
+    const a = (answers[q.id]||'').trim();
+    const s = scaleSelections[q.id];
+    if(a.length > 0 || s) count++;
+  }));
+  return count;
+}
+function getBlockAnswered(i) {
+  return blocks[i].questions.filter(q => {
+    return (answers[q.id]||'').trim().length > 0 || scaleSelections[q.id];
+  }).length;
+}
+function getBlocksCompleted() {
+  return blocks.filter((b,i) => getBlockAnswered(i) === b.questions.length).length;
+}
+function getGlobalIdx(bi,qi) { let c=0; for(let i=0;i<bi;i++) c+=blocks[i].questions.length; return c+qi; }
+
+function buildUI() {
+  const bn = document.getElementById('blockNav');
+  const bc = document.getElementById('blocks');
+
+  blocks.forEach((b,i) => {
+    const btn = document.createElement('button');
+    btn.className='nav-btn'; btn.id='nav-'+i;
+    btn.textContent = (i+1)+'. '+b.title;
+    btn.onclick=()=>{ currentBlock=i; showSummary=false; render(); window.scrollTo(0,0); };
+    bn.appendChild(btn);
+
+    const div = document.createElement('div');
+    div.className='block'; div.id='block-'+i;
+
+    let html = `<div class="block-header">
+      <div class="block-eyebrow">${b.eyebrow}</div>
+      <div class="block-title">${b.title}</div>
+      <div class="block-desc">${b.desc}</div>
+      <div class="block-why">${b.why}</div>
+    </div>`;
+
+    b.questions.forEach((q,qi) => {
+      const tagHtml = q.tag ? `<span class="q-tag tag-${q.tag}">${tagLabels[q.tag]}</span>` : '';
+      const contextHtml = q.context ? `<div class="q-context">${q.context}</div>` : '';
+      const scaleHtml = q.scale ? `<div class="scale-wrap">
+        <div class="scale-label">${q.scale.label}</div>
+        <div class="scale-options" id="scale-${q.id}">
+          ${q.scale.options.map(o=>`<button class="scale-btn" onclick="selectScale('${q.id}','${o}',this)">${o}</button>`).join('')}
+        </div>
+      </div>` : '';
+
+      html += `<div class="question-card" id="card-${q.id}">
+        <div class="q-top">
+          <div class="q-tags">${tagHtml}<span style="font-size:11px;color:var(--text-tertiary);padding:2px 0;">P${getGlobalIdx(i,qi)+1}/${getTotalQ()}</span></div>
+          <div class="q-check" id="check-${q.id}"></div>
+        </div>
+        <div class="q-text">${q.text}</div>
+        ${contextHtml}
+        ${scaleHtml}
+        <textarea class="q-input" id="input-${q.id}" placeholder="${q.placeholder||'Su respuesta...'}" oninput="saveAnswer('${q.id}',this.value)">${answers[q.id]||''}</textarea>
+      </div>`;
+    });
+
+    div.innerHTML = html;
+    bc.appendChild(div);
+  });
+}
+
+function selectScale(id, val, btn) {
+  scaleSelections[id] = val;
+  const container = document.getElementById('scale-'+id);
+  if(container) container.querySelectorAll('.scale-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateCardState(id);
+  updateStats();
+}
+
+function saveAnswer(id, val) {
+  answers[id] = val;
+  updateCardState(id);
+  updateStats();
+}
+
+function updateCardState(id) {
+  const hasText = (answers[id]||'').trim().length > 0;
+  const hasScale = !!scaleSelections[id];
+  const answered = hasText || hasScale;
+  const card = document.getElementById('card-'+id);
+  const check = document.getElementById('check-'+id);
+  if(card) card.classList.toggle('answered', answered);
+  if(check) check.classList.toggle('done', answered);
+}
+
+function updateStats() {
+  const total = getTotalQ();
+  const answered = getTotalAnswered();
+  const pct = Math.round(answered/total*100);
+
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressLabel').textContent = `${answered} de ${total}`;
+
+  blocks.forEach((b,i) => {
+    const a = getBlockAnswered(i);
+    const nav = document.getElementById('nav-'+i);
+    if(a === b.questions.length) nav.className='nav-btn completed';
+    else if(i===currentBlock&&!showSummary) nav.className='nav-btn active';
+    else nav.className='nav-btn';
+  });
+
+  if(showSummary) {
+    document.getElementById('s-answered').textContent = answered;
+    document.getElementById('s-pct').textContent = pct+'%';
+    document.getElementById('s-blocks').textContent = getBlocksCompleted()+'/6';
+  }
+}
+
+function render() {
+  blocks.forEach((b,i) => {
+    document.getElementById('block-'+i).classList.toggle('active', i===currentBlock&&!showSummary);
+    const nav = document.getElementById('nav-'+i);
+    const a = getBlockAnswered(i);
+    if(a===b.questions.length) nav.className='nav-btn completed';
+    else if(i===currentBlock&&!showSummary) nav.className='nav-btn active';
+    else nav.className='nav-btn';
+  });
+
+  document.getElementById('summaryView').classList.toggle('active', showSummary);
+
+  if(!showSummary) {
+    document.getElementById('btnPrev').disabled = currentBlock===0;
+    const isLast = currentBlock===blocks.length-1;
+    document.getElementById('btnNext').textContent = isLast ? 'Ver resumen →' : 'Siguiente →';
+    const a = getBlockAnswered(currentBlock);
+    const t = blocks[currentBlock].questions.length;
+    document.getElementById('navCounter').textContent = `Bloque ${currentBlock+1} de ${blocks.length} · ${a}/${t} respondidas`;
+  } else {
+    document.getElementById('navCounter').textContent = '';
+    document.getElementById('btnPrev').disabled = false;
+    document.getElementById('btnNext').textContent = 'Editar respuestas';
+    buildSummary();
+    updateStats();
+  }
+
+  updateStats();
+}
+
+function navigate(dir) {
+  if(showSummary && dir===1) { showSummary=false; currentBlock=0; }
+  else if(dir===1 && currentBlock===blocks.length-1) { showSummary=true; }
+  else { currentBlock=Math.max(0,Math.min(blocks.length-1,currentBlock+dir)); showSummary=false; }
+  render();
+  window.scrollTo(0,0);
+}
+
+function buildSummary() {
+  const c = document.getElementById('summaryContent');
+  let html = '';
+  blocks.forEach(b => {
+    html += `<div class="summary-block"><div class="summary-block-title">${b.eyebrow}</div>`;
+    b.questions.forEach(q => {
+      const a = (answers[q.id]||'').trim();
+      const s = scaleSelections[q.id];
+      let respuesta = '';
+      if(a && s) respuesta = `[${s}] ${a}`;
+      else if(s) respuesta = `[${s}]`;
+      else if(a) respuesta = a;
+      html += `<div class="summary-item">
+        <div class="summary-q">${q.text}</div>
+        <div class="${respuesta?'summary-a':'empty-a'}">${respuesta||'Sin respuesta'}</div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  c.innerHTML = html;
+}
+
+function getSummaryText() {
+  let txt = 'DIAGNÓSTICO ESTRATÉGICO — EXPRESO TUPIZA\n';
+  txt += 'Simple Marketing IA\n';
+  txt += '='.repeat(50)+'\n\n';
+  blocks.forEach(b => {
+    txt += `[${b.eyebrow.toUpperCase()}]\n`;
+    b.questions.forEach(q => {
+      const a = (answers[q.id]||'').trim();
+      const s = scaleSelections[q.id];
+      let r = '';
+      if(a && s) r = `[${s}] ${a}`;
+      else if(s) r = `[${s}]`;
+      else if(a) r = a;
+      else r = 'Sin respuesta';
+      txt += `P: ${q.text}\nR: ${r}\n\n`;
+    });
+    txt += '\n';
+  });
+  return txt;
+}
+
+function exportTxt() {
+  const blob = new Blob([getSummaryText()],{type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'diagnostico_expreso_tupiza.txt';
+  a.click();
+}
+
+function copyAll() {
+  navigator.clipboard.writeText(getSummaryText()).then(()=>{
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2500);
+  });
+}
+
+buildUI();
+render();
+</script>
+</body>
+</html>
